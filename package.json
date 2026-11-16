@@ -1,19 +1,52 @@
 {
-  "name": "review-desk",
+  "name": "@aurantine-works/claude-code-review-desk-tui",
   "version": "0.1.0",
   "description": "Terminal review desk for Claude Code plans and documents",
+  "keywords": [
+    "claude-code",
+    "claude",
+    "review",
+    "tui",
+    "terminal",
+    "cli",
+    "ink",
+    "plan-review",
+    "markdown",
+    "comments",
+    "anthropic"
+  ],
   "type": "module",
   "bin": {
-    "rd": "bin/rd.js"
+    "rd": "bin/rd.js",
+    "claude-code-review-desk-tui": "bin/rd.js"
   },
+  "files": [
+    "bin/",
+    "src/",
+    "!src/i18n/zh.js",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepublishOnly": "npm test"
   },
-  "license": "UNLICENSED",
-  "private": true,
+  "author": "Aurantine Works",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aurantine-works/claude-code-review-desk-tui.git"
+  },
+  "homepage": "https://github.com/aurantine-works/claude-code-review-desk-tui#readme",
+  "bugs": {
+    "url": "https://github.com/aurantine-works/claude-code-review-desk-tui/issues"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "chalk": "^6.0.1",
     "commander": "^15.1.0",

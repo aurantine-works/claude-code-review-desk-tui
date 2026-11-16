@@ -29,7 +29,9 @@ export function newAttrs(len) {
 }
 
 const ASCII_PUNCT = /[!-/:-@[-`{-~]/;
-const CJK_PUNCT = /[‘-‟　-〿＀-￯]/;
+// Punctuation ranges treated as CJK (not flanking-punctuation): U+2018-U+201F general
+// quotation marks, U+3000-U+303F CJK symbols and punctuation, U+FF00-U+FFEF half/full-width forms.
+const CJK_PUNCT = /[\u2018-\u201f\u3000-\u303f\uff00-\uffef]/;
 const UNI_PUNCT = /[\p{P}\p{S}]/u;
 const AUTOLINK = /<(?:[a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*|[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+)>/y;
 

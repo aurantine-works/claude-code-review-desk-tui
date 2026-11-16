@@ -57,6 +57,11 @@ async function fastStatusline() {
 async function cli() {
   const { Command, Option } = await import('commander');
   const program = new Command('rd').description('Review Desk: terminal review of Claude Code plans and documents');
+  try {
+    program.version(JSON.parse(fs.readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')).version, '-V, --version');
+  } catch {
+    /* no package.json next to bin/: no --version */
+  }
   program.exitOverride();
   const cmd = () => import('../src/cli/commands.js'); // lazy: keeps moment & co. out of other commands
 

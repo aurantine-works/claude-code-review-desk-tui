@@ -534,13 +534,13 @@ async function environmentChecks(group, { which, config, deps, usesBareRd }) {
     out.push(
       check(group, 'rd-path', usesBareRd ? 'fail' : 'warn', '`rd` is not on PATH', {
         detail: [usesBareRd ? 'The installed hooks and the /review-reply command call `rd`; they cannot run.' : 'Claude calls `rd reply` / `rd await`; the hooks use another command, but those instructions still say `rd`.'],
-        fix: `cd ${PKG_ROOT} && npm link   (or npm install -g ${PKG_ROOT})`,
+        fix: `npm install -g @aurantine-works/claude-code-review-desk-tui   (from a source checkout: cd ${PKG_ROOT} && npm link)`,
       }),
     );
   } else if (real(found) === ours) {
     out.push(check(group, 'rd-path', 'ok', `rd on PATH: ${found} -> this package`));
   } else {
-    out.push(check(group, 'rd-path', 'warn', `rd on PATH (${found}) is not this package`, { detail: [`resolves to ${real(found) ?? found}; this package is ${ours ?? PKG_BIN}`], fix: `cd ${PKG_ROOT} && npm link` }));
+    out.push(check(group, 'rd-path', 'warn', `rd on PATH (${found}) is not this package`, { detail: [`resolves to ${real(found) ?? found}; this package is ${ours ?? PKG_BIN}`], fix: `npm install -g @aurantine-works/claude-code-review-desk-tui   (from a source checkout: cd ${PKG_ROOT} && npm link)` }));
   }
 
   const claudeBin = config.delivery?.claudeBin || 'claude';
@@ -652,7 +652,7 @@ const paint = { ok: chalk.green, warn: chalk.yellow, fail: chalk.red, info: chal
 /** The human-readable report. */
 export function formatReport(result, { version = '' } = {}) {
   const lines = [];
-  lines.push(chalk.bold(`rd doctor${version ? ` · review-desk ${version}` : ''}`) + chalk.dim(` · RD_HOME ${tilde(rdHome())}`));
+  lines.push(chalk.bold(`rd doctor${version ? ` · @aurantine-works/claude-code-review-desk-tui ${version}` : ''}`) + chalk.dim(` · RD_HOME ${tilde(rdHome())}`));
   let group = null;
   for (const c of result.checks) {
     if (c.group !== group) {

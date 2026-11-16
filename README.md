@@ -1,6 +1,6 @@
-# Review Desk (`rd`)
+# Claude Code Review Desk (TUI)
 
-A terminal-only review desk. Over SSH, add margin comments to the **plans** and **documents** that Claude Code produces; the very **session that wrote the content** answers each comment and edits the text if needed.
+**Claude Code Review Desk** is a terminal-only review desk, started with the command `rd`. The npm package is `@aurantine-works/claude-code-review-desk-tui`. Over SSH, add margin comments to the **plans** and **documents** that Claude Code produces; the very **session that wrote the content** answers each comment and edits the text if needed.
 
 - Everything works with the keyboard and with the mouse. All features fit in an 80x24 terminal, and wrapping, the cursor and the input box are computed from display width (so CJK text works).
 - Comments are anchored to the original text (line, character range, quoted text) and are re-anchored automatically when the text changes.
@@ -84,13 +84,22 @@ On a narrow terminal (under 110 columns, for example a phone SSH client or an 80
 
 ## Installation
 
-Install from a source checkout (the package is `private` and is not published to npm):
+Install the package from npm (Node.js 22 or newer is required):
 
 ```bash
-cd review-desk
-npm install
-npm link            # or: npm install -g .   -- afterwards `rd` is on your PATH
+npm install -g @aurantine-works/claude-code-review-desk-tui
 rd --help
+```
+
+This puts the `rd` command on your PATH (`claude-code-review-desk-tui` is an alias of the same command). Then hook it into Claude Code with `rd install`, as described below.
+
+**From source** (for contributors):
+
+```bash
+git clone https://github.com/aurantine-works/claude-code-review-desk-tui.git
+cd claude-code-review-desk-tui
+npm install
+npm link            # afterwards `rd` is on your PATH
 ```
 
 Hook it into Claude Code. Look at what `--dry-run` would change first, then write for real (a backup is made and you are asked to confirm):
@@ -424,3 +433,7 @@ SMOKE_ONLY=n80,editor,cli bash test/smoke/tui-smoke.sh   # run only the named sc
 ```
 
 The tests and the smoke script both use a temporary `RD_HOME` and a temporary `CLAUDE_CONFIG_DIR`, so they never modify your real `~/.claude` or `~/.review-desk`. The user interface is English; other languages can be added as packs next to `src/i18n/en.js` and selected with `ui.lang` or `RD_LANG`.
+
+## License
+
+MIT, (c) Aurantine Works. See [LICENSE](LICENSE).
