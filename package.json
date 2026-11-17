@@ -1,6 +1,6 @@
 {
   "name": "@aurantine-works/claude-code-review-desk-tui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Terminal review desk for Claude Code plans and documents",
   "keywords": [
     "claude-code",
