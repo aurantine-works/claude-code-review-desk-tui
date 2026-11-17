@@ -1,12 +1,17 @@
-# Claude Code Review Desk (TUI)
+<h1>Claude Code Review Desk (TUI) <sub><a href="https://github.com/aurantine-works" title="Aurantine Works"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/aurantine-works/claude-code-review-desk-tui/main/assets/aurantine-logo-on-dark.svg"><img src="https://raw.githubusercontent.com/aurantine-works/claude-code-review-desk-tui/main/assets/aurantine-logo.svg" alt="Aurantine Works" title="Aurantine Works" width="22" height="22"></picture></a></sub></h1>
 
-**Claude Code Review Desk** is a terminal-only review desk, started with the command `rd`. The npm package is `@aurantine-works/claude-code-review-desk-tui`. Over SSH, add margin comments to the **plans** and **documents** that Claude Code produces; the very **session that wrote the content** answers each comment and edits the text if needed.
+**A terminal review desk for Claude Code.** Read the plans and documents Claude writes, and comment directly on the passage you mean, over SSH. The session that wrote the content answers in the margin, so your reading is never interrupted. Install: `npm install -g @aurantine-works/claude-code-review-desk-tui`, then `rd install`.
 
-- Everything works with the keyboard and with the mouse. All features fit in an 80x24 terminal, and wrapping, the cursor and the input box are computed from display width (so CJK text works).
-- Comments are anchored to the original text (line, character range, quoted text) and are re-anchored automatically when the text changes.
-- All state lives on disk in `~/.review-desk/`: dropped connections, closing the desk or restarting Claude Code never lose a comment.
-- **Instant Q&A** by default: write a comment, send it, and Claude answers within seconds without you going back to Claude's terminal. An idle Claude is **woken up automatically**, so you type nothing in Claude. You can also switch to batch submission.
-- No browser, port forwarding, tmux or session tool required (tmux / ccd are only used as an optional fallback for auto-injection).
+<p align="center"><img src="https://raw.githubusercontent.com/aurantine-works/claude-code-review-desk-tui/main/assets/demo.gif" alt="Review Desk demo" width="800"></p>
+<p align="center"><sub>Demo: reviewing a Claude Code plan in Review Desk.</sub></p>
+
+## Highlights
+
+- **Comment on the exact passage.** Put the cursor on a line or select a range and ask; the comment is anchored to that text instead of living in a separate chat.
+- **Answers never disturb your reading.** Replies appear in a margin pane beside the text (a drawer on narrow terminals), so the document does not scroll or get flushed by Claude's output the way it does in the Claude Code terminal.
+- **No switching back and forth.** You never go from the document to the Claude Code terminal to ask. An idle session is woken automatically, and the session that wrote the content answers and, when asked, edits it; each change is a revision you can diff.
+- **Never loses a comment.** Comments are re-anchored when the text changes, and all state lives on disk, so dropped connections and restarts cost nothing.
+- **Terminal only.** No browser or port forwarding; plain SSH is enough, down to 80x24. Keyboard and mouse both work, Markdown tables render aligned, and CJK text is handled.
 
 ## Verified versions
 
@@ -17,63 +22,77 @@
 The inbox, `rd` (80 columns):
 
 ```
- Review Desk · inbox                                        3 open · 1 answered
+ Review Desk · inbox                                        1 open · 0 answered
 ────────────────────────────────────────────────────────────────────────────────
- ● plan proj-x     Plan: refactor the devi…  awaiting_review · hook …   <1m ago
- ● doc  proj-x     Weekly report · Week 45   awaiting_review             <1m ago
- ○ doc  proj-x     Weekly report · Week 45   feedback_pending (1/2)      <1m ago
+ ● doc  work       Weekly report · Week 45   awaiting_review            <1m ago
+
+
+
+
+
+
+
 ────────────────────────────────────────────────────────────────────────────────
  ↑↓/jk select · Enter open · a show all · x close review · ? help · q quit
 ```
 
-The review screen on a wide terminal (110 columns or more): text and comments side by side:
+The review screen on a wide terminal (110 columns or more): text and comments side by side, with Markdown tables rendered aligned:
 
 ```
- Weekly report · Week 45 · rev 1/1 · After you send: with your next message                            [d] diff
-───────────────────────────────────────────────────────────────────┬────────────────────────────────────────────
- 3 │ ## Summary                                                    │
- 4 │                                                               │
- 5 │ This week the device table refactor was completed, mostly the │
-   │ store migration and the slice split. Overall progress is on   │
-   │ track, but two risks need attention.                          │
- 6 │                                                               │
- 7 │ ## Risks                                                      │
- 8 │                                                               │ ▌t1 · L9 · answered
- 9▌│ Migrating the old store is low risk because it only affects   │   you: What makes the risk low?
-  ▌│ the device and policy slices.                                 │   Claude: Both slices are only used by the
-10 │ The rollback plan relies on a feature flag; see               │            device table component; there
-   │ `store.migrate()` for details.                                │           are no cross-slice dependencies.
-───────────────────────────────────────────────────────────────────┴────────────────────────────────────────────
- NORMAL  Type /review-reply in Claude to start instant Q&A                                instant · src · L9/27
+ Weekly report · Week 45 · rev 1/1 · round 1 · After you send: automatic · instant mode                            [d] diff
+──────────────────────────────────────────────────────────────────────────┬─────────────────────────────────────────────────
+ 1 │ Weekly report · Week 45                                              │
+ 2 │                                                                      │
+ 3 │ Summary                                                              │
+ 4 │                                                                      │
+ 5 │ This week the device table refactor was completed, mostly the store  │
+   │ migration and the slice split. Overall progress is on track, but two │
+   │ risks need attention.                                                │
+ 6 │                                                                      │
+ 7 │ Status                                                               │
+ 8 │                                                                      │
+ 9 │ │ Workstream      │ Owner │ Status      │ Notes                    │ │
+10 │ ├─────────────────┼───────┼─────────────┼──────────────────────────┤ │
+11 │ │ Store migration │ Ana   │ Done        │ Old store removed        │ │
+12 │ │ Slice split     │ Ben   │ Done        │ Device and policy slices │ │
+13▌│ │ Rollback flag   │ Chen  │ In progress │ Needs QA sign-off        │ │ ▌t1 · L13 · answered
+14 │                                                                      │   you: Who signs off on the rollback flag?
+15 │ Risks                                                                │   Claude: Chen owns it; QA sign-off is due
+16 │                                                                      │           Friday.
+17 │ • Risk 1: the old data format is incompatible with the new slices.   │
+18 │ • Risk 2: the rollback plan relies on a feature flag.                │
+~                                                                         │
+──────────────────────────────────────────────────────────────────────────┴─────────────────────────────────────────────────
+ NORMAL  sent · delivered to Claude automatically                                                     instant · md · L13/18
 ```
 
 On a narrow terminal (under 110 columns, for example a phone SSH client or an 80x24 window) the comment pane becomes a drawer at the bottom that shows the threads of the cursor line, and the input box floats at the bottom of the screen:
 
 ```
- Weekly report · Week 45 · rev 1/1                                     [d] diff
+ Weekly report · Week 45 · rev 1/1 · After you send: automatic         [d] diff
 ────────────────────────────────────────────────────────────────────────────────
- 3 │ ## Summary
  4 │
  5 │ This week the device table refactor was completed, mostly the store
    │ migration and the slice split. Overall progress is on track, but two risks
    │ need attention.
  6 │
- 7 │ ## Risks
+ 7 │ Status
  8 │
- 9▌│ Migrating the old store is low risk because it only affects the device and
-  ▌│ policy slices.
-10 │ The rollback plan relies on a feature flag; see `store.migrate()` for
-   │ details.
-11 │
-12 │ - Risk 1: the old data format is incompatible
-── Comments (2) ────────────────────────────────────────────────────────────────
- no comment on the cursor line · c comment · ]c jump to the next thread
+ 9 │ │ Workstream      │ Owner │ Status      │ Notes                    │
+10 │ ├─────────────────┼───────┼─────────────┼──────────────────────────┤
+11 │ │ Store migration │ Ana   │ Done        │ Old store removed        │
+12 │ │ Slice split     │ Ben   │ Done        │ Device and policy slices │
+13▌│ │ Rollback flag   │ Chen  │ In progress │ Needs QA sign-off        │
+14 │
+15 │ Risks
+── Comments (1) ────────────────────────────────────────────────────────────────
+ ▌t1 · L13 · answered
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ Comment L9-10                                                                │
-│ Which slices exactly, and who owns them?                                     │
+│ Comment L13                                                                  │
+│ Which slices exactly?                                                        │
 │ Enter send · Alt+Enter newline                               send    cancel  │
 ╰──────────────────────────────────────────────────────────────────────────────╯
- INPUT  Enter send · Alt+Enter newline · Esc cancel      instant · src · L10/27
+ INPUT  Enter send · Alt+Enter newline · Esc cancel       instant · md · L13/18
 ```
 
 ## Requirements
@@ -187,7 +206,7 @@ Documents and plans work the same way: you send a comment in the review desk, Cl
 Without a watcher (an old Claude Code, or hooks that were not reinstalled) rd falls back to the older approach, where the first time Claude has to be put into an `rd await` loop:
 
 - Claude is busy: the Stop hook injects instructions when the turn ends, and after working through the backlog Claude enters the loop by itself.
-- Claude is idle and runs in tmux / ccd: rd types `/review-reply <id>` for you (see "Delivery channels").
+- Claude is idle and runs in tmux: rd types `/review-reply <id>` for you (see "Delivery channels").
 - Anything else: the header says so once; **type `/review-reply` in Claude**, after which every comment is delivered instantly and you do not need to go back.
 
 `E` ends the instant Q&A of this session: it only ends the `rd await` that Claude started (it prints `end` and exits; sending another comment starts it again). Automatic wake-up is unaffected, and comments sent afterwards are delivered as usual.
@@ -216,7 +235,7 @@ Comments submitted after Claude Code has exited (or the process has died) stay i
 - `h` resumes headless in the background: `claude --resume <session> -p "/review-reply <id>"`. The output is appended to `~/.review-desk/logs/headless-<id>.log` and the answer is written back to the review desk. It is a one-shot start: the session answers and exits, so adding more comments means resuming again and spending more tokens; for a back-and-forth, use `c`.
 - `l` / `Esc` leave it for later. The comments are delivered with the next message once the session is resumed (a resumed session starts a watcher again, so the comments then arrive automatically).
 
-`O` reopens this window; the command-line equivalent is `rd resume <id> [--headless]`. Without a watcher, rd types `/review-reply` automatically after the resume (when tmux / ccd is available).
+`O` reopens this window; the command-line equivalent is `rd resume <id> [--headless]`. Without a watcher, rd types `/review-reply` automatically after the resume (when tmux is available).
 
 **Automatic background resume**: if you do not want to be asked every time, set `"delivery": {"autoResume": "headless"}` in `config.json`. When you send a comment to an ended session, rd then starts the background resume of `h` directly and shows a notice (`session ended · resumed in the background automatically (pid ...)`) instead of the window. At most one background resume runs per session at a time; only when starting fails is the window opened, with the reason. The default `"ask"` keeps the window described above.
 
@@ -336,7 +355,7 @@ The tables below are the same data as the help you get by pressing `?` in the re
 | `docs.autoOpen` | `false` | When true, watch mode opens a newly registered document by itself, like a plan |
 | `review.sendMode` | `"instant"` | Default send mode, `"instant"` or `"batch"` (`B` toggles it at any time) |
 | `review.idleEndMinutes` | `null` | Reserved: end instant Q&A automatically after this many idle minutes; `null` never ends it |
-| `delivery.autoInject` | `true` | When tmux / ccd is detected and **there is no watcher**, type `/review-reply <id>` into an idle session; `false` always delivers with the next message. It never types while a watcher is running |
+| `delivery.autoInject` | `true` | When tmux is detected and **there is no watcher**, type `/review-reply <id>` into an idle session; `false` always delivers with the next message. It never types while a watcher is running |
 | `delivery.injectIdleSeconds` | `2` | The session must have been idle at least this long before injecting |
 | `delivery.injectWaitSeconds` | `30` | How long to wait at most for the session to become idle; after that, fall back to channel A / B |
 | `delivery.claudeBin` | `"claude"` | Executable started by channel C (a path or a name on PATH, no arguments) |
@@ -359,7 +378,7 @@ How a comment gets back to the original session depends on the state the session
 | `rd await` | Claude is already in instant Q&A | A background task prints the new comment and exits, and its completion notification wakes Claude (with a watcher, Claude is no longer asked to start it; while it runs it delivers and the watcher steps aside) |
 | A: with the next message | No watcher; the session is idle and there is no injection adapter | When you type `/review-reply` (or any message) in Claude, the `UserPromptSubmit` hook attaches the comments |
 | B: Stop hook | No watcher; the session is busy | When the turn ends, the `Stop` hook injects instructions and Claude carries on |
-| Auto-injection | No watcher; the session is idle and runs in tmux or ccd | rd types the fixed text `/review-reply <reviewId>` (never the comment text); the session must have been idle long enough and the target pane must belong to this session |
+| Auto-injection | No watcher; the session is idle and runs in tmux | rd types the fixed text `/review-reply <reviewId>` (never the comment text); the session must have been idle long enough and the target pane must belong to this session |
 | C: resume the session | The session has ended | See "Offline recovery" |
 
 The automatic wake-up row comes first because, as soon as a watcher exists, the other channels are only fallbacks: they all take comments through `takeUnreceived`, so each comment is sent by exactly one channel. `rd doctor` tells you which adapters are available in the current environment. tmux pane numbers are only unique within one tmux server, so rd records the socket as well.
@@ -402,7 +421,7 @@ Start with `rd doctor`: it is non-interactive and prints a ✓ / ! / ✗ list wi
 | Claude configuration directory and the project-level `./.claude/settings.json` | whether all 6 events are present, the command prefix, the `timeout` of the plan hook, the two `rd hook watch` entries for automatic wake-up (missing is `!`, noting "while a session is idle, comments need /review-reply"; no `asyncRewake` is `✗`, because Claude Code would wait for it at the end of every turn; a too short `timeout` is `!`), the 4 permission rules, whether the status line is taken by someone else, whether `commands/review-reply.md` is the current version; installing at both user and project level is flagged |
 | `RD_HOME` | exists, mode 700, writable, JSON files parse, and no `*.lock` files left behind beyond the stale time |
 | sessions.json | "zombie" sessions (process dead but state not ended), `awaiting` and `watcher` records that point at dead processes, failed background resumes |
-| Injection adapters | whether tmux / ccd are usable in the current environment and whether the recorded pane still exists |
+| Injection adapters | whether tmux are usable in the current environment and whether the recorded pane still exists |
 | `logs/rd.log` | number of hook errors in the last 24 hours and the last one |
 
 `rd doctor --fix` repairs only three things: it marks zombie sessions as ended and removes the `awaiting` and `watcher` records that point at dead processes. For everything else it only prints the command to run (use `rd install` to add missing hooks). Values in `config.json` that rd does not recognise (for example `delivery.autoResume`) are pointed out as well.
